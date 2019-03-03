@@ -1,5 +1,6 @@
 #include<iostream>
 #include<omp.h>
+#include"testOMP.h"
 
 using namespace std;
 
@@ -37,6 +38,16 @@ void testSum()
 	cout << "sum:" << sum << endl;
 }
 
+void testSum2()
+{
+	int i, sum = 100;
+#pragma omp parallel for reduction(+: sum)
+	for (i = 0; i < 1000; i++) {
+		sum += i;
+	}
+	printf("sum = %ld\n", sum);
+}
+
 void testHelloWorld()
 {
 	int nthreads, tid;
@@ -64,9 +75,76 @@ void testParallelFor()
 	}
 }
 
+void testParallel()
+{
+//#pragma omp parallel
+//	{
+//		printf("Hello, World!, ThreadId = %d\n", omp_get_thread_num());
+//	}
+#pragma omp parallel num_threads(20)
+	{
+		printf("Hello, World!, ThreadId = %d\n", omp_get_thread_num());
+	}
+}
+
+void testSections()
+{
+#pragma omp parallel sections 
+{
+#pragma omp section
+	printf("section 1 ThreadId = %d\n", omp_get_thread_num());
+#pragma omp section
+	printf("section 2 ThreadId = %d\n", omp_get_thread_num());
+#pragma omp section
+	printf("section 3 ThreadId = %d\n", omp_get_thread_num());
+#pragma omp section
+	printf("section 4 ThreadId = %d\n", omp_get_thread_num());
+	}
+}
+
+void testPrivate()
+{
+	int k = 100;
+#pragma omp parallel for private(k)
+	for (k = 0; k < 10; k++)
+	{
+		printf("k=%d\n", k);
+	}
+	printf("last k=%d\n", k);
+}
+int counter = 0;
+
+#pragma omp threadprivate(counter)
+int increment_counter()
+{
+	counter++;
+	return(counter);
+}
+void testCopyprivate()
+{
+	
+
+#pragma omp parallel
+		{
+			int count;
+#pragma omp single copyprivate(counter)//去掉copyprivate将会导致只有主线程里的counter为51
+			{
+				counter = 50;
+			}
+			count = increment_counter();
+			printf("ThreadId: %ld, count = %ld\n", omp_get_thread_num(), count);
+		}
+}
+
+
+
 int main()
 {
-	testParallelFor();
+	//testParallelFor();
+	//testParallel();
+	//testSections();
+	//testPrivate();
+	testCopyprivate();
 	system("pause");
 	return 0;
 }

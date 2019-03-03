@@ -1,4 +1,4 @@
 ﻿  main.cpp
 c1xx : warning C4199: C++/CLI、C++/CX 或 OpenMP 不支持两阶段名称查找；请使用 /Zc:twoPhase-
-d:\vsprojects\openmptest\openmptest\openmptest\main.cpp(43): warning C4101: “buf”: 未引用的局部变量
-  openMPtest.vcxproj -> D:\vsProjects\openMPtest\openMPtest\Debug\openMPtest.exe
+d:\vsprojects\openmp_learning\openmptest\openmptest\openmptest\main.cpp(54): warning C4101: “buf”: 未引用的局部变量
+  openMPtest.vcxproj -> D:\vsProjects\OpenMP_Learning\openMPtest\openMPtest\Debug\openMPtest.exe

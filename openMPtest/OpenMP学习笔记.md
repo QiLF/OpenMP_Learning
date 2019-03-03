@@ -47,12 +47,137 @@ pragma omp 指令 \[子句][子句]...]
 
 **parallel**，用在一个代码段之前，表示这段代码将被多个线程并行执行 
 
-**for**，用于 for 循环之前，将循环分配到多个线程中并行执行，必须保证每次循环之间无相关性。 
+**for**，用于 for 循环之前，将循环分配到多个线程中并行执行，必须保证每次循环之间无相关性。
+
+for 指令则是用来将一个 for 循环分配到多个线程中执行。 
+
+ii. for 指令一般可以和 parallel 指令合起来形成 parallel for 指令使用，也可以单独用在 parallel 语句的并行块中。
+
+`int j = 0;
+#pragma omp parallel for
+for ( j = 0; j < 4; j++ ){
+printf(“j = %d, ThreadId = %d\n”, j, omp_get_thread_num());
+} `
+
+等价于
+
+`int j = 0;
+#pragma omp parallel
+{
+#pragma omp for
+	for ( j = 0; j < 4; j++ ){
+		printf(“j = %d, ThreadId = %d\n”, j, omp_get_thread_num());
+	}
+} `
+
+ii.在一个 parallel 块中也可以有多个 for 语句 ，多使用几个 `#pragma omp for`即可
+
+iii. for 循环语句中，书写要按照规范
+
+​	i=start; 是 for 循环里的第一条语句，必须写成 “变量＝初值” 的方式。如 i＝0
+​	i < end;是 for 循环里的第二条语句，这个语句里可以写成以下 4 种形式之一：
+​	变量 < 边界值
+​	变量 <= 边界值
+​	变量 > 边界值
+​	变量 >= 边界值
+​	最后一条语句 i++可以有以下 9 种写法之一
+​	i++
+​	++i
+​	i‐‐
+​	‐‐i
+​	i += inc
+​	i ‐= inc
+​	i = i + inc
+​	i = inc + i
+​	i = i –inc 
 
 **parallel for**， parallel 和 for 语句的结合，也是用在一个 for 循环之前，表示 for 循环的代码将被多个线程并行执行。
 **sections**，用在可能会被并行执行的代码段之前
+
+**section** 语句是用在 sections 语句里用来将 sections 语句里的代码划分成几个不同的段， 每段
+都并行执行。使用 section 语句时， 需要注意的是这种方式需要保证各个 section 里的代码执行时间相差不
+大，否则某个 section 执行时间比其他 section 过长就达不到并行执行的效果了 
+
 **parallel sections**， parallel 和 sections 两个语句的结合
+
+用 for 语句来分摊是由系统自动进行，只要每次循环间没有时间上的差距，那么分摊是很均
+匀的，使用 section 来划分线程是一种手工划分线程的方式，最终并行性的好坏得依赖于程
+序员 
+
 **critical**，用在一段代码临界区之前
 **single**，用在一段只被单个线程执行的代码段之前，表示后面的代码段将被单线程执行 
 
 **barrier**，用于并行区内代码的线程同步，所有线程执行到 barrier 时要停止，直到所有线程都执行到 barrier 时才继续往下执行 
+
+### 数据处理子句
+
+**private** 子句 
+
+private 子句用于将一个或多个变量声明成线程私有的变量，变量声明成私有变量后，指定每个线程都有它自己的变量私有副本，其他线程无法访问私有副本。即使在并行区域外有同名的共享变量，共享变量在并行区域内不起任何作用，并且并行区域内不会操作到外面的共享变量。 
+
+**firstprivate **子句
+
+并行区域内的私有变量继承外面共享变量的值作为初始值，并且在退出并行区域后，共享变量的值变 
+
+**lastprivate** 子句
+
+lastprivate 子句用来实现在退出并行区域时将私有变量的值赋给共享变量 
+
+由于在并行区域内是多个线程并行执行的， 最后到底是将那个线程的最终计算结果赋给了对应的共享变量呢？ 
+
+OpenMP 规范中指出，如果是**循环迭代，那么是将最后一次循环迭代中的值赋给对应的共享变量**；如果是 **section 构造，那么是最后一个 section 语句中的值赋给对应的共享变量。注意这里说的最后一个 section 是指程序语法上的最后一个，而不是实际运行时的最后一个运行完的**。 
+
+class类型变量在lastprivate参数中使用时有限制*(需要了解一下c++)
+
+**threadprivate** 子句
+
+threadprivate 子句用来指定全局的对象被各个线程各自复制了一个私有的拷贝，即各个线程
+具有各自私有的全局对象。 
+
+用法如下：
+`#pragma omp threadprivate(list)`
+
+threadprivate 和 private 的区别在于 threadprivate 声明的变量通常是全局范围内有效的，而
+private 声明的变量只在它所属的并行构造中有效 
+
+threadprivate 的对应只能用于 copyin， copyprivate， schedule， num_threads 和 if 子句中，不能用于任何其他子句中。
+用作 threadprivate 的变量的地址不能是常数 
+
+**shared** 子句
+
+shared 子句用来声明一个或多个变量是共享变量 
+
+shared(list)
+需要注意的是， 在并行区域内使用共享变量时， 如果存在写操作， 必须对共享变量加以保护，
+否则不要轻易使用共享变量，尽量将共享变量的访问转化为私有变量的访问。
+循环迭代变量在循环构造区域里是私有的。声明在循环构造区域内的自动变量都是私有的。 
+
+**default** 子句 
+
+default(shared | none)
+使用 shared 时，缺省情况下，传入并行区域内的同名变量被当作共享变量来处理，不会产
+生线程私有副本，除非使用 private 等子句来指定某些变量为私有的才会产生副本。
+如果使用 none 作为参数，那么线程中用到的变量必须显示指定是共享的还是私有的，除了
+那些由明确定义的除外 
+
+**reduction** 子句
+
+reduction(operator:list) 
+
+reduction 子句主要用来对一个或多个参数条目指定一个操作符，**每个线程将创建参数条目**
+**的一个私有拷贝**(根据运算值不同有不同的初始值)，在区域的结束处，将用私有拷贝的值通过指定的运行符运算，原始的参数条目被运算结果的值更新 
+
+**copyin** 子句
+
+copyin 子句用来将主线程中 **threadprivate** 变量的值拷贝到执行并行区域的各个线程的**threadprivate** 变量中，便于线程可以访问主线程中的变量值 
+
+copyin 中的参数必须被声明成 threadprivate 的 ，对于类类型的变量，必须带有明确的拷贝赋
+值操作符。 
+
+**copyprivate** 子句
+
+copyprivate 子句提供了一种机制用一个私有变量将一个值从一个线程广播到执行同一并行
+区域的其他线程。
+用法如下：
+copyprivate(list) 
+
