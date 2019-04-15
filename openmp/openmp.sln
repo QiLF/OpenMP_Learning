@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.572
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openmp", "openmp\openmp.vcxproj", "{936A4977-291E-4E49-96E1-D4614AD2E7F5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{936A4977-291E-4E49-96E1-D4614AD2E7F5}.Debug|x64.ActiveCfg = Debug|x64
+		{936A4977-291E-4E49-96E1-D4614AD2E7F5}.Debug|x64.Build.0 = Debug|x64
+		{936A4977-291E-4E49-96E1-D4614AD2E7F5}.Release|x64.ActiveCfg = Release|x64
+		{936A4977-291E-4E49-96E1-D4614AD2E7F5}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {57B36E7E-2168-4E07-B850-7E7573D17D89}
+	EndGlobalSection
+EndGlobal
