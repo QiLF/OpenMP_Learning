@@ -43,7 +43,7 @@ int para_quicksort_partition(int A[], int p, int r)
 	for (int j = p; j < r; j++)
 	{
 		if (A[j] <= x) {
-			i++;
+				i++;
 			//swap(A[i], A[j]);
 			{
 				//交换A[i]和A[j],使得A[p...i]恒小于轴值
